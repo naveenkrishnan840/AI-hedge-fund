@@ -1,1 +1,3 @@
 # AI-hedge-fund
+
+* ska
