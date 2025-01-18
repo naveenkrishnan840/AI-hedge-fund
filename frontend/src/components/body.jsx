@@ -248,7 +248,7 @@ const ChatBody = () => {
                                             </Grid2>
                                         </Grid2>
                                         </Container>
-                                        <CircularProgress color="success"/>
+                                        {/* <CircularProgress color="success"/> */}
                                         {responseLoaded === true &&
                                         (<>
                                                 <Divider/>
