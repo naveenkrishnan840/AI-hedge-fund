@@ -3,8 +3,9 @@ from pydantic import BaseModel
 
 
 class ChatRequest(BaseModel):
-    start_date: str
-    end_date: str
+    startDate: str
+    endDate: str
     ticker: str
     portfolio: Dict[str, Any]
-    selected_analyst: List[str]
+    selectedAnalyst: List[str]
+

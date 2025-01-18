@@ -28,93 +28,98 @@ def technical_analyst_agent(state: AgentState):
         start_date=start_date,
         end_date=end_date,
     )
+    if prices:
+        # Convert prices to a DataFrame
+        prices_df = prices_to_df(prices)
 
-    # Convert prices to a DataFrame
-    prices_df = prices_to_df(prices)
+        # 1. Trend Following Strategy
+        trend_signals = calculate_trend_signals(prices_df)
 
-    # 1. Trend Following Strategy
-    trend_signals = calculate_trend_signals(prices_df)
+        # 2. Mean Reversion Strategy
+        mean_reversion_signals = calculate_mean_reversion_signals(prices_df)
 
-    # 2. Mean Reversion Strategy
-    mean_reversion_signals = calculate_mean_reversion_signals(prices_df)
+        # 3. Momentum Strategy
+        momentum_signals = calculate_momentum_signals(prices_df)
 
-    # 3. Momentum Strategy
-    momentum_signals = calculate_momentum_signals(prices_df)
+        # 4. Volatility Strategy
+        volatility_signals = calculate_volatility_signals(prices_df)
 
-    # 4. Volatility Strategy
-    volatility_signals = calculate_volatility_signals(prices_df)
+        # 5. Statistical Arbitrage Signals
+        stat_arb_signals = calculate_stat_arb_signals(prices_df)
 
-    # 5. Statistical Arbitrage Signals
-    stat_arb_signals = calculate_stat_arb_signals(prices_df)
+        # Combine all signals using a weighted ensemble approach
+        strategy_weights = {
+            "trend": 0.25,
+            "mean_reversion": 0.20,
+            "momentum": 0.25,
+            "volatility": 0.15,
+            "stat_arb": 0.15,
+        }
 
-    # Combine all signals using a weighted ensemble approach
-    strategy_weights = {
-        "trend": 0.25,
-        "mean_reversion": 0.20,
-        "momentum": 0.25,
-        "volatility": 0.15,
-        "stat_arb": 0.15,
-    }
-
-    combined_signal = weighted_signal_combination(
-        {
-            "trend": trend_signals,
-            "mean_reversion": mean_reversion_signals,
-            "momentum": momentum_signals,
-            "volatility": volatility_signals,
-            "stat_arb": stat_arb_signals,
-        },
-        strategy_weights,
-    )
-
-    # Generate detailed analysis report
-    analysis_report = {
-        "signal": combined_signal["signal"],
-        "confidence": round(combined_signal["confidence"] * 100),
-        "strategy_signals": {
-            "trend_following": {
-                "signal": trend_signals["signal"],
-                "confidence": round(trend_signals["confidence"] * 100),
-                "metrics": normalize_pandas(trend_signals["metrics"]),
+        combined_signal = weighted_signal_combination(
+            {
+                "trend": trend_signals,
+                "mean_reversion": mean_reversion_signals,
+                "momentum": momentum_signals,
+                "volatility": volatility_signals,
+                "stat_arb": stat_arb_signals,
             },
-            "mean_reversion": {
-                "signal": mean_reversion_signals["signal"],
-                "confidence": round(mean_reversion_signals["confidence"] * 100),
-                "metrics": normalize_pandas(mean_reversion_signals["metrics"]),
-            },
-            "momentum": {
-                "signal": momentum_signals["signal"],
-                "confidence": round(momentum_signals["confidence"] * 100),
-                "metrics": normalize_pandas(momentum_signals["metrics"]),
-            },
-            "volatility": {
-                "signal": volatility_signals["signal"],
-                "confidence": round(volatility_signals["confidence"] * 100),
-                "metrics": normalize_pandas(volatility_signals["metrics"]),
-            },
-            "statistical_arbitrage": {
-                "signal": stat_arb_signals["signal"],
-                "confidence": round(stat_arb_signals["confidence"] * 100),
-                "metrics": normalize_pandas(stat_arb_signals["metrics"]),
-            },
-        },
-    }
+            strategy_weights,
+        )
 
-    # Create the technical analyst message
-    message = HumanMessage(
-        content=json.dumps(analysis_report),
-        name="technical_analyst_agent",
-    )
+        # Generate detailed analysis report
+        analysis_report = {
+            "signal": combined_signal["signal"],
+            "confidence": round(combined_signal["confidence"] * 100),
+            "strategy_signals": {
+                "trend_following": {
+                    "signal": trend_signals["signal"],
+                    "confidence": round(trend_signals["confidence"] * 100),
+                    "metrics": normalize_pandas(trend_signals["metrics"]),
+                },
+                "mean_reversion": {
+                    "signal": mean_reversion_signals["signal"],
+                    "confidence": round(mean_reversion_signals["confidence"] * 100),
+                    "metrics": normalize_pandas(mean_reversion_signals["metrics"]),
+                },
+                "momentum": {
+                    "signal": momentum_signals["signal"],
+                    "confidence": round(momentum_signals["confidence"] * 100),
+                    "metrics": normalize_pandas(momentum_signals["metrics"]),
+                },
+                "volatility": {
+                    "signal": volatility_signals["signal"],
+                    "confidence": round(volatility_signals["confidence"] * 100),
+                    "metrics": normalize_pandas(volatility_signals["metrics"]),
+                },
+                "statistical_arbitrage": {
+                    "signal": stat_arb_signals["signal"],
+                    "confidence": round(stat_arb_signals["confidence"] * 100),
+                    "metrics": normalize_pandas(stat_arb_signals["metrics"]),
+                },
+            },
+        }
 
-    # if state["metadata"]["show_reasoning"]:
-    #     show_agent_reasoning(analysis_report, "Technical Analyst")
+        # Create the technical analyst message
+        message = HumanMessage(
+            content=json.dumps(analysis_report),
+            name="technical_analyst_agent",
+        )
 
-    # Add the signal to the analyst_signals list
-    state["data"]["analyst_signals"]["technical_analyst_agent"] = {
-        "signal": analysis_report["signal"],
-        "confidence": analysis_report["confidence"],
-        "reasoning": analysis_report["strategy_signals"],
-    }
+        # if state["metadata"]["show_reasoning"]:
+        #     show_agent_reasoning(analysis_report, "Technical Analyst")
+
+        # Add the signal to the analyst_signals list
+        state["data"]["analyst_signals"]["technical_analyst_agent"] = {
+            "signal": analysis_report["signal"],
+            "confidence": analysis_report["confidence"],
+            "reasoning": analysis_report["strategy_signals"],
+        }
+    else:
+        message = HumanMessage(
+            content="No price data returned",
+            name="technical_analyst_agent",
+        )
 
     return {
         "messages": state["messages"] + [message],
@@ -432,13 +437,13 @@ def calculate_adx(df: pd.DataFrame, period: int = 14) -> pd.DataFrame:
     """
     # Calculate True Range
     df["high_low"] = df["high"] - df["low"]
-    df["high_close"] = abs(df["high"] - df["close"].shift())
-    df["low_close"] = abs(df["low"] - df["close"].shift())
+    df["high_close"] = abs(df["high"] - df["close"].shift(fill_value=0))
+    df["low_close"] = abs(df["low"] - df["close"].shift(fill_value=0))
     df["tr"] = df[["high_low", "high_close", "low_close"]].max(axis=1)
 
     # Calculate Directional Movement
-    df["up_move"] = df["high"] - df["high"].shift()
-    df["down_move"] = df["low"].shift() - df["low"]
+    df["up_move"] = df["high"] - df["high"].shift(fill_value=0)
+    df["down_move"] = df["low"].shift(fill_value=0) - df["low"]
 
     df["plus_dm"] = np.where(
         (df["up_move"] > df["down_move"]) & (df["up_move"] > 0), df["up_move"], 0
@@ -472,8 +477,8 @@ def calculate_atr(df: pd.DataFrame, period: int = 14) -> pd.Series:
         pd.Series: ATR values
     """
     high_low = df["high"] - df["low"]
-    high_close = abs(df["high"] - df["close"].shift())
-    low_close = abs(df["low"] - df["close"].shift())
+    high_close = abs(df["high"] - df["close"].shift(fill_value=0))
+    low_close = abs(df["low"] - df["close"].shift(fill_value=0))
 
     ranges = pd.concat([high_low, high_close, low_close], axis=1)
     true_range = ranges.max(axis=1)

@@ -1,4 +1,4 @@
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
 import json
@@ -14,6 +14,10 @@ class PortfolioManagerOutput(BaseModel):
     quantity: int = Field(description="Number of shares to trade")
     confidence: float = Field(description="Confidence in the decision, between 0.0 and 100.0")
     reasoning: str = Field(description="Reasoning for the decision")
+
+
+# class PortfolioManagerOutput(BaseModel):
+#     decisions: dict[str, PortfolioDecision] = Field(description="Dictionary of ticker to trading decisions")
 
 
 def portfolio_management_agent(state: AgentState):
@@ -63,11 +67,11 @@ def portfolio_management_agent(state: AgentState):
             "valuation_signal": analyst_signals.get("valuation_agent", {}).get("signal", ""),
             "max_position_size": analyst_signals.get("risk_management_agent", {}).get("max_position_size", 0),
             "portfolio_cash": f"{portfolio['cash']:.2f}",
-            "portfolio_stock": portfolio["stock"],
+            "portfolio_stock": portfolio["shares"],
         }
     )
 
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", api_key="AIzaSyAYmSmi6qAlKEALP0FtjK60ZsjMIjZv4z4").\
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", api_key="AIzaSyDE5Dj_vpdBAYfzit1oJo_KgA4sy5Ikdn4").\
         with_structured_output(schema=PortfolioManagerOutput)
 
     result = llm.invoke(input=prompt)
@@ -80,7 +84,7 @@ def portfolio_management_agent(state: AgentState):
     }
 
     # Create the portfolio management message
-    message = HumanMessage(
+    message = AIMessage(
         content=json.dumps(message_content),
         name="portfolio_management",
     )

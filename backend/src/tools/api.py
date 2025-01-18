@@ -5,10 +5,17 @@ import pandas as pd
 import requests
 
 
+financial_metrics_list = {}
+prices_list = {}
+line_items_list = {}
+insider_trades_list = {}
+
+
 def get_financial_metrics(ticker: str, end_date: str, period: str = 'ttm', limit: int = 10) -> List[Dict[str, Any]]:
     """Fetch financial metrics from cache or API."""
     # Check cache first
-    if cached_data := os.getenv(ticker):
+
+    if cached_data := financial_metrics_list.get(ticker, []):
         # Filter cached data by date and limit
         filtered_data = [
             metric for metric in cached_data
@@ -17,7 +24,6 @@ def get_financial_metrics(ticker: str, end_date: str, period: str = 'ttm', limit
         filtered_data.sort(key=lambda x: x["report_period"], reverse=True)
         if filtered_data:
             return filtered_data[:limit]
-
     # If not in cache or insufficient data, fetch from API
     headers = {}
     if api_key := os.environ.get("DATASET_API_KEY"):
@@ -32,23 +38,25 @@ def get_financial_metrics(ticker: str, end_date: str, period: str = 'ttm', limit
     )
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        raise Exception(
-            f"Error fetching data: {response.status_code} - {response.text}"
-        )
+        return []
+        # raise Exception(
+        #     f"Error fetching data: {response.status_code} - {response.text}"
+        # )
     data = response.json()
     financial_metrics = data.get("financial_metrics")
     if not financial_metrics:
-        raise ValueError("No financial metrics returned")
+        return []
+        # raise ValueError("No financial metrics returned")
 
     # Cache the results
-    os.environ[ticker] = financial_metrics
+    financial_metrics_list[ticker] = financial_metrics
     return financial_metrics[:limit]
 
 
 def get_prices(ticker: str, start_date: str, end_date: str) -> List[Dict[str, Any]]:
     """Fetch price data from cache or API."""
     # Check cache first
-    if cached_data := os.getenv(ticker):
+    if cached_data := prices_list.get(ticker, []):
         # Filter cached data by date range
         filtered_data = [
             price for price in cached_data
@@ -72,16 +80,18 @@ def get_prices(ticker: str, start_date: str, end_date: str) -> List[Dict[str, An
     )
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        raise Exception(
-            f"Error fetching data: {response.status_code} - {response.text}"
-        )
+        return []
+        # raise Exception(
+        #     f"Error fetching data: {response.status_code} - {response.text}"
+        # )
     data = response.json()
     prices = data.get("prices")
     if not prices:
-        raise ValueError("No price data returned")
+        return []
+        # raise ValueError("No price data returned")
 
     # set the value to os
-    os.environ[ticker] = prices
+    prices_list[ticker] = prices
     return prices
 
 
@@ -89,7 +99,7 @@ def search_line_items(ticker: str, line_items: List[str], end_date: str, period:
                       ) -> List[Dict[str, Any]]:
     """Fetch line items from cache or API."""
     # Check cache first
-    if cached_data := os.getenv(ticker):
+    if cached_data := line_items_list.get(ticker, []):
         # Filter cached data by date and limit
         filtered_data = [
             item for item in cached_data
@@ -115,23 +125,25 @@ def search_line_items(ticker: str, line_items: List[str], end_date: str, period:
     }
     response = requests.post(url, headers=headers, json=body)
     if response.status_code != 200:
-        raise Exception(
-            f"Error fetching data: {response.status_code} - {response.text}"
-        )
+        return []
+        # raise Exception(
+        #     f"Error fetching data: {response.status_code} - {response.text}"
+        # )
     data = response.json()
     search_results = data.get("search_results")
     if not search_results:
-        raise ValueError("No search results returned")
+        return []
+        # raise ValueError("No search results returned")
 
     # Cache the results
-    os.environ[ticker] = search_results
+    line_items_list[ticker] = search_results
     return search_results[:limit]
 
 
 def get_insider_trades(ticker: str, end_date: str, limit: int = 1000) -> List[Dict[str, Any]]:
     """Fetch insider trades from cache or API."""
     # Check cache first
-    if cached_data := os.getenv(ticker):
+    if cached_data := insider_trades_list.get(ticker, []):
         # Filter cached data by date and limit
         filtered_data = [
             trade for trade in cached_data
@@ -158,16 +170,18 @@ def get_insider_trades(ticker: str, end_date: str, limit: int = 1000) -> List[Di
     )
     response = requests.get(url, headers=headers)
     if response.status_code != 200:
-        raise Exception(
-            f"Error fetching data: {response.status_code} - {response.text}"
-        )
+        return []
+        # raise Exception(
+        #     f"Error fetching data: {response.status_code} - {response.text}"
+        # )
     data = response.json()
     insider_trades = data.get("insider_trades")
     if not insider_trades:
-        raise ValueError("No insider trades returned")
+        return []
+        # raise ValueError("No insider trades returned")
 
     # Cache the results
-    os.environ[ticker] = insider_trades
+    insider_trades_list[ticker] = insider_trades
 
     return insider_trades[:limit]
 
@@ -175,11 +189,14 @@ def get_insider_trades(ticker: str, end_date: str, limit: int = 1000) -> List[Di
 def get_market_cap(ticker: str, end_date: str) -> List[Dict[str, Any]]:
     """Fetch market cap from the API."""
     financial_metrics = get_financial_metrics(ticker, end_date)
-    market_cap = financial_metrics[0].get('market_cap')
-    if not market_cap:
-        raise ValueError("No market cap returned")
+    if financial_metrics:
+        market_cap = financial_metrics[0].get('market_cap')
+        # if not market_cap:
+        #     # raise ValueError("No market cap returned")
+        #     return []
 
-    return market_cap
+        return market_cap
+    return []
 
 
 def prices_to_df(prices: List[Dict[str, Any]]) -> pd.DataFrame:
@@ -197,5 +214,5 @@ def prices_to_df(prices: List[Dict[str, Any]]) -> pd.DataFrame:
 # Update the get_price_data function to use the new functions
 def get_price_data(ticker: str, start_date: str, end_date: str) -> pd.DataFrame:
     prices = get_prices(ticker, start_date, end_date)
-    return prices_to_df(prices)
+    return prices_to_df(prices) if prices else pd.DataFrame()
 
