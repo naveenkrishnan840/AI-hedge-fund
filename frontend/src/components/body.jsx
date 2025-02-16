@@ -26,6 +26,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 const ChatBody = () => {
     const [ticker, setTicker] = useState('');
+    const [isLoading, setIsLoading] = useState('');
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [selectedAnalyst, setSelectedAnalyst] = useState([]);
@@ -69,6 +70,7 @@ const ChatBody = () => {
         };
       }
     const onSubmitForm = () => {
+        setIsLoading(true);
         setResponseLoaded(false);
         setClearResponse(true)
         const data = {
@@ -90,6 +92,7 @@ const ChatBody = () => {
                 setListOfDecision(res.detail.date_range_decision);
                 setReasoning(res.detail.reasoning);
                 setResponseLoaded(true);
+                setIsLoading(true);
 
             }
         })
@@ -101,7 +104,7 @@ const ChatBody = () => {
     
     return (
         <>
-        <div className="min-h-screen bg-gray-500 text-white">
+        <div className="min-h-scree text-white">
             <div className="text-center font-bold text-2xl border border-white shadow-lg p-6 mx-40 rounded-md">AI Hedge Fund</div>
             <Formik
                 validateOnBlur={false}
@@ -130,7 +133,7 @@ const ChatBody = () => {
                                                         {({ field }) => (
                                                             <>
                                                                <Select
-                                                                    sx={{color: "whitesmoke"}}
+                                                                    // sx={{color: "whitesmoke"}}
                                                                     defaultValue={"AAPL"}
                                                                     labelId="demo-simple-select-helper-label"
                                                                     id="demo-simple-select-helper"
@@ -163,7 +166,7 @@ const ChatBody = () => {
                                                 <FormControl sx={{width: 400}}>
                                                     <InputLabel id="demo-multiple-chip-label">AI Analyst</InputLabel>
                                                     <Select
-                                                    sx={{color: "whitesmoke"}}
+                                                    sx={{color: "white"}}
                                                     labelId="demo-multiple-chip-label"
                                                     id="demo-multiple-chip"
                                                     multiple
@@ -194,6 +197,14 @@ const ChatBody = () => {
                                                         <MenuItem key={"valuation_analyst"} value={"Valuation Analyst"} 
                                                         style={getStyles("valuation_analyst", selectedAnalyst, theme)}>
                                                         Valuation Analyst
+                                                        </MenuItem> 
+                                                        <MenuItem key={"bill_ackman_agent"} value={"Bill Ackman Analyst"} 
+                                                        style={getStyles("bill_ackman_agent", selectedAnalyst, theme)}>
+                                                        Bill Ackman Analyst
+                                                        </MenuItem>
+                                                        <MenuItem key={"warren_buffet_agent"} value={"Warren Buffet Analyst"} 
+                                                        style={getStyles("warren_buffet_agent", selectedAnalyst, theme)}>
+                                                        Warren Buffett's Analyst
                                                         </MenuItem>
                                                     </Select>
                                                 </FormControl>
@@ -243,7 +254,7 @@ const ChatBody = () => {
                                             </Grid2>
                                             <Grid2 sx={{marginLeft: "250px"}}>
                                                 <FormControl sx={{width: 400}}>
-                                                    <Button type="submit" sx={{color: "white", bgcolor: "#6B7280", cursor: "pointer"}} variant="contained">Submit</Button>
+                                                    <Button loading={isLoading} type="submit" sx={{color: "white", bgcolor: "#6B7280", cursor: "pointer"}} variant="contained">Submit</Button>
                                                 </FormControl>
                                             </Grid2>
                                         </Grid2>
@@ -315,7 +326,7 @@ const ChatBody = () => {
                                                         </TableContainer>
                                                         <Divider/>
                                                         <div style={{width: "850px"}} className="p-2 m-2 font-bold shadow-md text-center ">Reasoning</div>
-                                                        <div style={{width: "850px"}} className="p-2 m-2 font-bold shadow-md text-wrap  ">{reasoning}</div>
+                                                        <div style={{width: "850px"}} className="p-2 m-2 shadow-md text-wrap  ">{reasoning}</div>
                                                         <Divider/>
                                                         <div style={{width: "850px"}} className="p-2 m-2 font-bold shadow-md text-center ">DATE RANGE TRADING DECISION</div>
                                                         <TableContainer component={Paper}>

@@ -1,6 +1,8 @@
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
+import os
 import json
 
 from pydantic import BaseModel, Field
@@ -10,7 +12,7 @@ from backend.src.graph_state.state import AgentState
 
 
 class PortfolioManagerOutput(BaseModel):
-    action: Literal["buy", "sell", "hold"]
+    action: Literal["buy", "sell", "short", "cover", "hold"]
     quantity: int = Field(description="Number of shares to trade")
     confidence: float = Field(description="Confidence in the decision, between 0.0 and 100.0")
     reasoning: str = Field(description="Reasoning for the decision")
@@ -71,8 +73,9 @@ def portfolio_management_agent(state: AgentState):
         }
     )
 
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro", api_key="AIzaSyDE5Dj_vpdBAYfzit1oJo_KgA4sy5Ikdn4").\
-        with_structured_output(schema=PortfolioManagerOutput)
+    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash").with_structured_output(schema=PortfolioManagerOutput)
+    # llm = (ChatOpenAI(base_url=os.getenv("OPENROUTER_BASE_URL"), model=os.getenv("MODEL_NAME")).
+    #        with_structured_output(schema=PortfolioManagerOutput, method="json_mode"))
 
     result = llm.invoke(input=prompt)
 

@@ -4,6 +4,7 @@ import pandas as pd
 from langgraph.graph import END, START, StateGraph
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 
 from backend.src.graph_state.state import AgentState
 from backend.src.agents.fundamental import *
@@ -11,6 +12,8 @@ from backend.src.agents.risk_management_agent import *
 from backend.src.agents.sentiment import *
 from backend.src.agents.technicals import *
 from backend.src.agents.valuation import *
+from backend.src.agents.bill_ackman import bill_ackman_agent
+from backend.src.agents.warren_buffet import warren_buffett_agent
 from backend.src.agents.portfolio_manager import *
 from backend.src.request_validation.validation import ChatRequest
 from backend.src.tools.api import get_price_data
@@ -20,6 +23,8 @@ app = FastAPI(description="AI Hedge Fund")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 app_router = APIRouter()
+
+load_dotenv()
 
 
 @app_router.post(path="/hedge-fund-request")
@@ -36,7 +41,8 @@ def interact_bot_with_request(request: Request, chatRequest: ChatRequest):
 
     # Default to all analysts if none selected
     if not selected_analysts:
-        selected_analysts = ["Technical Analyst", "Fundamentals Analyst", "Sentiment Analyst", "Valuation Analyst"]
+        selected_analysts = ["Technical Analyst", "Fundamentals Analyst", "Sentiment Analyst", "Valuation Analyst",
+                             "Bill Ackman Analyst", "Warren Buffet Analyst"]
 
     # Dictionary of all available analysts
     analyst_nodes = {
@@ -44,6 +50,8 @@ def interact_bot_with_request(request: Request, chatRequest: ChatRequest):
         "Fundamentals Analyst": ("fundamentals_agent", fundamentals_agent),
         "Sentiment Analyst": ("sentiment_agent", sentiment_agent),
         "Valuation Analyst": ("valuation_agent", valuation_agent),
+        "Bill Ackman Analyst": ("bill_ackman_agent", bill_ackman_agent),
+        "Warren Buffet Analyst": ("warren_buffet_agent", warren_buffett_agent),
     }
 
     # Add selected analyst nodes
@@ -89,13 +97,14 @@ def interact_bot_with_request(request: Request, chatRequest: ChatRequest):
     # Prepare analyst signals report
     analyst_signals_table_data = []
     for agent, signal in analyst_signals.items():
-        agent_name = agent.replace("_agent", "").replace("_", " ").title()
-        signal_type = signal.get("signal", "").upper()
-        analyst_signals_table_data.append({
-            "analyst": agent_name,
-            "signal": signal_type,
-            "confidence": signal.get('confidence', "")
-        })
+        if agent not in ['risk_management_agent']:
+            agent_name = agent.replace("_agent", "").replace("_", " ").title()
+            signal_type = signal.get("signal", "").upper()
+            analyst_signals_table_data.append({
+                "analyst": agent_name,
+                "signal": signal_type,
+                "confidence": signal.get('confidence', "")
+            })
 
     decision_data = {"Action": common_decision.get("action", "").upper(), "Quantity": common_decision.get('quantity'),
                      "Confidence": common_decision.get('confidence')
