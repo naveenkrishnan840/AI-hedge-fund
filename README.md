@@ -41,12 +41,8 @@ cp .env.example .env
 
 4. Set your API keys:
 ```bash
-# For running LLMs hosted by openai (gpt-4o, gpt-4o-mini, etc.)
-# Get your OpenAI API key from https://platform.openai.com/
-OPENAI_API_KEY=your-openai-api-key
-
 # For running LLMs hosted by groq (deepseek, llama3, etc.)
-# Get your Groq API key from https://groq.com/
+# Get your Groq API key from https://console.cloud.google.com/
 GOOGLE_API_KEY=your-google-api-key
 
 # For getting financial data to power the hedge fund
