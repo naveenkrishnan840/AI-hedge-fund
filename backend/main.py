@@ -14,7 +14,7 @@ from src.agents.technicals import *
 from src.agents.valuation import *
 from src.agents.bill_ackman import bill_ackman_agent
 from src.agents.warren_buffet import warren_buffett_agent
-from .src.agents.portfolio_manager import *
+from src.agents.portfolio_manager import *
 from src.request_validation.validation import ChatRequest
 from src.tools.api import get_price_data
 
