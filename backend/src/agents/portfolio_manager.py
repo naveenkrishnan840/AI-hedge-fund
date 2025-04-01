@@ -8,7 +8,7 @@ import json
 from pydantic import BaseModel, Field
 from typing import Literal
 
-from backend.src.graph_state.state import AgentState
+from src.graph_state.state import AgentState
 
 
 class PortfolioManagerOutput(BaseModel):

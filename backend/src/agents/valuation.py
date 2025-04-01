@@ -1,8 +1,8 @@
 from langchain_core.messages import HumanMessage
 import json
 
-from backend.src.graph_state.state import AgentState
-from backend.src.tools.api import get_financial_metrics, get_market_cap, search_line_items
+from src.graph_state.state import AgentState
+from src.tools.api import get_financial_metrics, get_market_cap, search_line_items
 
 
 def valuation_agent(state: AgentState):

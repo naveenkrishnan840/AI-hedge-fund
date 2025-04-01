@@ -1,7 +1,7 @@
 from langchain_core.messages import HumanMessage
 import json
-from backend.src.tools.api import get_financial_metrics
-from backend.src.graph_state.state import AgentState
+from src.tools.api import get_financial_metrics
+from src.graph_state.state import AgentState
 
 
 def fundamentals_agent(state: AgentState):

@@ -6,17 +6,17 @@ from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from backend.src.graph_state.state import AgentState
-from backend.src.agents.fundamental import *
-from backend.src.agents.risk_management_agent import *
-from backend.src.agents.sentiment import *
-from backend.src.agents.technicals import *
-from backend.src.agents.valuation import *
-from backend.src.agents.bill_ackman import bill_ackman_agent
-from backend.src.agents.warren_buffet import warren_buffett_agent
-from backend.src.agents.portfolio_manager import *
-from backend.src.request_validation.validation import ChatRequest
-from backend.src.tools.api import get_price_data
+from src.graph_state.state import AgentState
+from src.agents.fundamental import *
+from src.agents.risk_management_agent import *
+from src.agents.sentiment import *
+from src.agents.technicals import *
+from src.agents.valuation import *
+from src.agents.bill_ackman import bill_ackman_agent
+from src.agents.warren_buffet import warren_buffett_agent
+from .src.agents.portfolio_manager import *
+from src.request_validation.validation import ChatRequest
+from src.tools.api import get_price_data
 
 app = FastAPI(description="AI Hedge Fund")
 
@@ -257,6 +257,6 @@ def execute_trade(ticker: str, action: str, quantity: float, current_price: floa
 
 app.include_router(router=app_router)
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8002)
+# if __name__ == "__main__":
+#     import uvicorn
+#     uvicorn.run(app, host="127.0.0.1", port=8002)

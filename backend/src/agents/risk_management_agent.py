@@ -1,8 +1,8 @@
 from langchain_core.messages import HumanMessage, HumanMessageChunk
 import json
 
-from backend.src.graph_state.state import AgentState
-from backend.src.tools.api import get_prices, prices_to_df
+from src.graph_state.state import AgentState
+from src.tools.api import get_prices, prices_to_df
 
 
 ##### Risk Management Agent #####

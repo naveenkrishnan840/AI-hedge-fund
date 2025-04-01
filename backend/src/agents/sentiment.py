@@ -1,10 +1,10 @@
 from langchain_core.messages import HumanMessage
-from backend.src.graph_state.state import AgentState
+from src.graph_state.state import AgentState
 import pandas as pd
 import numpy as np
 import json
 
-from backend.src.tools.api import get_insider_trades
+from src.tools.api import get_insider_trades
 
 
 ##### Sentiment Agent #####

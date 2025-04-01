@@ -1,7 +1,7 @@
 import os
 from langchain_openai import ChatOpenAI
-from backend.src.graph_state.state import AgentState
-from backend.src.tools.api import *
+from src.graph_state.state import AgentState
+from src.tools.api import *
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI

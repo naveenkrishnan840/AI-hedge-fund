@@ -4,8 +4,8 @@ import pandas as pd
 import numpy as np
 from langchain_core.messages import HumanMessage
 
-from backend.src.graph_state.state import AgentState
-from backend.src.tools.api import get_prices, prices_to_df
+from src.graph_state.state import AgentState
+from src.tools.api import get_prices, prices_to_df
 
 
 ##### Technical Analyst #####
